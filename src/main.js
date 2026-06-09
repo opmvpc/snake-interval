@@ -11,7 +11,7 @@ let score = 0
 let snake = []
 let fruit = null
 let direction = null
-let oldDirection = null
+let directionBuffer = []
 const timeBetweenLoops = 300
 let interval = null
 let isPaused = false
@@ -29,6 +29,7 @@ function newGame() {
   snake = [{ x: 0, y: 0 }]
   fruit = randomFruitPosition()
   direction = { dx: 1, dy: 0 }
+  directionBuffer = []
   isPaused = false
 
   app.innerHTML = game(size)
@@ -70,15 +71,13 @@ function addKeyboardEvents() {
       return
     }
 
-    if (direction.dx + directions[event.code].dx === 0 || direction.dy + directions[event.code].dy === 0) {
-      return
-    }
-    if (oldDirection && (oldDirection.dx + directions[event.code].dx === 0 || oldDirection.dy + directions[event.code].dy === 0)) {
+    if (directionBuffer.length === 0 && (direction.dx + directions[event.code].dx === 0 || direction.dy + directions[event.code].dy === 0)) {
       return
     }
 
-    oldDirection = direction
-    direction = directions[event.code] ?? direction
+    if (directionBuffer.length < 5) {
+      directionBuffer.unshift(directions[event.code] ?? direction)
+    }
   })
 }
 
@@ -106,15 +105,16 @@ function gameLoop() {
 
   const canvas = document.querySelector("canvas")
   const ctx = canvas.getContext("2d")
+
   ctx.fillStyle = "yellow"
   ctx.fillRect(0, 0, size, size)
+  
   drawFruit(ctx)
   drawSnake(ctx)
   updateScore()
   checkWallsCollision()
   checkTailCollision()
   moveSnake()
-  oldDirection = null
 }
 
 function checkTailCollision() {
@@ -140,6 +140,7 @@ function endGame() {
 }
 
 function moveSnake() {
+  direction = directionBuffer.pop() ?? direction
   snake.unshift({ x: snake[0].x + direction.dx, y: snake[0].y + direction.dy })
   if (snake[0].x === fruit.x && snake[0].y === fruit.y) {
     score += 1
