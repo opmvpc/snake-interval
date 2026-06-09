@@ -17,7 +17,6 @@ export function game(size) {
             <button id="overlay-end">Accueil</button>
           </div>
         </div>
-
       </div>
       <button id="pause">Pause</button>
     </main>
