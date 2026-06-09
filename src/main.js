@@ -153,8 +153,23 @@ function updateScore() {
   document.querySelector("#score").textContent = score
 }
 
+function isOnSnake(x, y) {
+  for (let i = 0; i < snake.length; i++) {
+    if (snake[i].x === x && snake[i].y === y) {
+      return true
+    }
+  }
+  return false
+}
+
 function randomFruitPosition() {
-  return { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * cols) }
+  let x = 0
+  let y = 0
+  do {
+    x = Math.floor(Math.random() * cols)
+    y = Math.floor(Math.random() * cols)
+  } while (isOnSnake(x, y));
+  return { x: x, y: y }
 }
 
 function drawFruit(ctx) {
