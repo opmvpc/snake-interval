@@ -106,29 +106,37 @@ function gameLoop() {
   const canvas = document.querySelector("canvas")
   const ctx = canvas.getContext("2d")
 
-  ctx.fillStyle = "yellow"
-  ctx.fillRect(0, 0, size, size)
-  
+  moveSnake()
+  if (shouldEndGame()) {
+    endGame()
+    return
+  }
+  drawBackground(ctx)
   drawFruit(ctx)
   drawSnake(ctx)
   updateScore()
-  checkWallsCollision()
-  checkTailCollision()
-  moveSnake()
+}
+
+function drawBackground(ctx) {
+  ctx.fillStyle = "yellow"
+  ctx.fillRect(0, 0, size, size)
+}
+
+function shouldEndGame() {
+  return checkWallsCollision() || checkTailCollision()
 }
 
 function checkTailCollision() {
   for (let i = 1; i < snake.length; i++) {
     if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) {
-      endGame()
+      return true
     }
   }
+  return false
 }
 
 function checkWallsCollision() {
-  if (snake[0].x < 0 || snake[0].y < 0 || snake[0].x >= cols || snake[0].y >= cols) {
-    endGame()
-  }
+  return snake[0].x < 0 || snake[0].y < 0 || snake[0].x >= cols || snake[0].y >= cols
 }
 
 function endGame() {
