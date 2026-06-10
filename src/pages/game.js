@@ -1,4 +1,4 @@
-import { nav } from "../components/nav"
+import { nav } from "../components/nav";
 
 export function game(size) {
   return `
@@ -20,5 +20,5 @@ export function game(size) {
       </div>
       <button id="pause">Pause</button>
     </main>
-  `
+  `;
 }

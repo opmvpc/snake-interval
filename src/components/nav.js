@@ -3,5 +3,5 @@ export function nav() {
   <nav>
     <span id="logo">🐍🍎</span>
   </nav>
-  `
+  `;
 }

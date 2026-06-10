@@ -1,4 +1,4 @@
-import { nav } from "../components/nav"
+import { nav } from "../components/nav";
 
 export function end(score) {
   return `
@@ -8,5 +8,5 @@ export function end(score) {
       <div>Votre score : ${score}</div>
       <button id="restart">Recommencer</button>
     </main>
-  `
+  `;
 }

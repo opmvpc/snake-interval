@@ -1,55 +1,56 @@
-import { end } from './pages/end';
-import { game } from './pages/game';
-import { home } from './pages/home'
-import './style.css'
+import { end } from "./pages/end";
+import { game } from "./pages/game";
+import { home } from "./pages/home";
+import "./style.css";
 
-const app = document.querySelector("#app")
+const app = document.querySelector("#app");
 const size = 400;
 const cellSize = 20;
-const cols = Math.floor(size / cellSize)
-let score = 0
-let snake = []
-let fruit = null
-let direction = null
-let directionBuffer = []
-const timeBetweenLoops = 300
-let interval = null
-let isPaused = false
-
+const cols = Math.floor(size / cellSize);
+let score = 0;
+let snake = [];
+let fruit = null;
+let direction = null;
+let directionBuffer = [];
+const timeBetweenLoops = 300;
+let interval = null;
+let isPaused = false;
 
 function startApp() {
-  app.innerHTML = home()
-  const startButton = document.querySelector("#start")
-  startButton.addEventListener("click", newGame)
-  startButton.focus()
+  app.innerHTML = home();
+  const startButton = document.querySelector("#start");
+  startButton.addEventListener("click", newGame);
+  startButton.focus();
 }
 
 function newGame() {
-  score = 0
-  snake = [{ x: 0, y: 0 }]
-  fruit = randomFruitPosition()
-  direction = { dx: 1, dy: 0 }
-  directionBuffer = []
-  isPaused = false
+  score = 0;
+  snake = [{ x: 0, y: 0 }];
+  fruit = randomFruitPosition();
+  direction = { dx: 1, dy: 0 };
+  directionBuffer = [];
+  isPaused = false;
 
-  app.innerHTML = game(size)
-  const pauseButton = document.querySelector("#pause")
-  pauseButton.addEventListener("click", pauseGame)
-  pauseButton.focus()
-  document.querySelector("#overlay-unpause").addEventListener("click", pauseGame)
+  app.innerHTML = game(size);
+  const pauseButton = document.querySelector("#pause");
+  pauseButton.addEventListener("click", pauseGame);
+  pauseButton.focus();
+  document
+    .querySelector("#overlay-unpause")
+    .addEventListener("click", pauseGame);
   document.querySelector("#overlay-restart").addEventListener("click", () => {
-    clearInterval(interval)
-    newGame()
-  })
+    clearInterval(interval);
+    newGame();
+  });
   document.querySelector("#overlay-end").addEventListener("click", () => {
-    clearInterval(interval)
-    startApp()
-  })
+    clearInterval(interval);
+    startApp();
+  });
 
-  updateScore()
+  updateScore();
 
   interval = setInterval(() => {
-    gameLoop()
+    gameLoop();
   }, timeBetweenLoops);
 }
 
@@ -59,139 +60,151 @@ function addKeyboardEvents() {
       ArrowLeft: { dx: -1, dy: 0 },
       ArrowUp: { dx: 0, dy: -1 },
       ArrowRight: { dx: 1, dy: 0 },
-      ArrowDown: { dx: 0, dy: 1 }
+      ArrowDown: { dx: 0, dy: 1 },
     };
 
     if (event.code === "Escape") {
-      pauseGame()
-      return
+      pauseGame();
+      return;
     }
 
     if (!directions[event.code]) {
-      return
+      return;
     }
 
-    if (directionBuffer.length === 0 && (direction.dx + directions[event.code].dx === 0 || direction.dy + directions[event.code].dy === 0)) {
-      return
+    const lastDirection = directionBuffer[0] ?? direction;
+
+    if (
+      lastDirection.dx + directions[event.code].dx === 0 ||
+      lastDirection.dy + directions[event.code].dy === 0
+    ) {
+      return;
     }
 
     if (directionBuffer.length < 5) {
-      directionBuffer.unshift(directions[event.code] ?? direction)
+      directionBuffer.unshift(directions[event.code]);
     }
-  })
+  });
 }
 
 function pauseGame() {
-  isPaused = !isPaused
+  isPaused = !isPaused;
 
-  const pauseOverlay = document.querySelector("#pause-overlay")
-  const overlayUnpauseButton = document.querySelector("#overlay-unpause")
-  const pauseButton = document.querySelector("#pause")
+  const pauseOverlay = document.querySelector("#pause-overlay");
+  const overlayUnpauseButton = document.querySelector("#overlay-unpause");
+  const pauseButton = document.querySelector("#pause");
 
-  pauseOverlay.classList.toggle("hidden")
-  pauseButton.classList.toggle("hidden")
+  pauseOverlay.classList.toggle("hidden");
+  pauseButton.classList.toggle("hidden");
 
   if (isPaused) {
-    overlayUnpauseButton.focus()
+    overlayUnpauseButton.focus();
   } else {
-    pauseButton.focus()
+    pauseButton.focus();
   }
 }
 
 function gameLoop() {
   if (isPaused) {
-    return
+    return;
   }
 
-  const canvas = document.querySelector("canvas")
-  const ctx = canvas.getContext("2d")
+  const canvas = document.querySelector("canvas");
+  const ctx = canvas.getContext("2d");
 
-  moveSnake()
+  moveSnake();
   if (shouldEndGame()) {
-    endGame()
-    return
+    endGame();
+    return;
   }
-  drawBackground(ctx)
-  drawFruit(ctx)
-  drawSnake(ctx)
-  updateScore()
+  drawBackground(ctx);
+  drawFruit(ctx);
+  drawSnake(ctx);
+  updateScore();
 }
 
 function drawBackground(ctx) {
-  ctx.fillStyle = "yellow"
-  ctx.fillRect(0, 0, size, size)
+  ctx.fillStyle = "yellow";
+  ctx.fillRect(0, 0, size, size);
 }
 
 function shouldEndGame() {
-  return checkWallsCollision() || checkTailCollision()
+  return checkWallsCollision() || checkTailCollision();
 }
 
 function checkTailCollision() {
   for (let i = 1; i < snake.length; i++) {
     if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) {
-      return true
+      return true;
     }
   }
-  return false
+  return false;
 }
 
 function checkWallsCollision() {
-  return snake[0].x < 0 || snake[0].y < 0 || snake[0].x >= cols || snake[0].y >= cols
+  return (
+    snake[0].x < 0 || snake[0].y < 0 || snake[0].x >= cols || snake[0].y >= cols
+  );
 }
 
 function endGame() {
-  clearInterval(interval)
-  app.innerHTML = end(score)
-  const restartButton = document.querySelector("#restart")
-  restartButton.addEventListener("click", newGame)
-  restartButton.focus()
+  clearInterval(interval);
+  app.innerHTML = end(score);
+  const restartButton = document.querySelector("#restart");
+  restartButton.addEventListener("click", newGame);
+  restartButton.focus();
 }
 
 function moveSnake() {
-  direction = directionBuffer.pop() ?? direction
-  snake.unshift({ x: snake[0].x + direction.dx, y: snake[0].y + direction.dy })
+  direction = directionBuffer.pop() ?? direction;
+  snake.unshift({ x: snake[0].x + direction.dx, y: snake[0].y + direction.dy });
   if (snake[0].x === fruit.x && snake[0].y === fruit.y) {
-    score += 1
-    fruit = randomFruitPosition()
+    score += 1;
+    fruit = randomFruitPosition();
   } else {
-    snake.pop()
+    snake.pop();
   }
 }
 
 function updateScore() {
-  document.querySelector("#score").textContent = score
+  document.querySelector("#score").textContent = score;
 }
 
 function isOnSnake(x, y) {
   for (let i = 0; i < snake.length; i++) {
     if (snake[i].x === x && snake[i].y === y) {
-      return true
+      return true;
     }
   }
-  return false
+  return false;
 }
 
 function randomFruitPosition() {
-  let x = 0
-  let y = 0
+  let x = 0;
+  let y = 0;
   do {
-    x = Math.floor(Math.random() * cols)
-    y = Math.floor(Math.random() * cols)
+    x = Math.floor(Math.random() * cols);
+    y = Math.floor(Math.random() * cols);
   } while (isOnSnake(x, y));
-  return { x: x, y: y }
+  return { x: x, y: y };
 }
 
 function drawFruit(ctx) {
-  ctx.fillStyle = "red"
-  ctx.fillRect(fruit.x * cellSize, fruit.y * cellSize, cellSize, cellSize)
+  ctx.fillStyle = "red";
+  ctx.fillRect(fruit.x * cellSize, fruit.y * cellSize, cellSize, cellSize);
 }
 
 function drawSnake(ctx) {
   for (let i = 0; i < snake.length; i++) {
-    ctx.fillStyle = "green"
-    ctx.fillRect(snake[i].x * cellSize, snake[i].y * cellSize, cellSize, cellSize)
+    ctx.fillStyle = "green";
+    ctx.fillRect(
+      snake[i].x * cellSize,
+      snake[i].y * cellSize,
+      cellSize,
+      cellSize,
+    );
   }
 }
 
-startApp()
-addKeyboardEvents()
+startApp();
+addKeyboardEvents();
